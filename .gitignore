@@ -1,0 +1,14 @@
+.env
+credentials.json
+token.json
+*.db
+*.sqlite
+*.sqlite3
+__pycache__/
+.pytest_cache/
+.venv/
+venv/
+.coverage
+htmlcov/
+recordings/
+data/
