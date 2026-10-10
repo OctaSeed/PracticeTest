@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import Any, Literal
 
 from dotenv import load_dotenv
-from fastapi import Depends, FastAPI, Header, HTTPException, Request, Response, status
+from fastapi import Depends, FastAPI, Header, HTTPException, Request, Response
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from pydantic import BaseModel, Field, field_validator
@@ -209,7 +209,7 @@ def sync_sheets(path: str, spreadsheet_id: str | None, lead: dict[str, Any]) -> 
 HTML = r"""<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Lead Desk</title><style>
 body{font:15px system-ui;margin:0;background:#f5f7fb;color:#172033}header{background:#111b31;color:white;padding:24px 6%;font-size:22px;font-weight:700}
-main{max-width:1100px;margin:28px auto;padding:0 18px}.cards{display:flex;gap:14px;margin:20px 0}.card,section{background:white;border:1px solid #e1e6ef;border-radius:12px;padding:18px}.card{flex:1}.muted{color:#697589;font-size:13px}.num{font-size:28px;font-weight:700}section{padding:0;overflow:auto}h1{font-size:25px}table{width:100%;border-collapse:collapse;min-width:760px}th,td{text-align:left;padding:14px;border-bottom:1px solid #edf0f5}th{background:#fafbfc;color:#687386}button,a{background:#2855d9;color:white;border:0;border-radius:8px;padding:9px 13px;text-decoration:none;cursor:pointer}select{padding:7px;border:1px solid #ddd;border-radius:7px}.status{font-size:12px;color:#17684d}.integration{float:right}@media(max-width:600px){.cards{display:block}.card{margin:10px 0}.integration{float:none}}
+main{max-width:1100px;margin:28px auto;padding:0 18px}.cards{display:flex;gap:14px;margin:20px 0}.card,section{background:white;border:1px solid #e1e6ef;border-radius:12px;padding:18px}.card{flex:1}.muted{color:#697589;font-size:13px}.num{font-size:28px;font-weight:700}section{padding:0;overflow:auto}h1{font-size:25px}.integration{float:right}table{width:100%;border-collapse:collapse;min-width:760px}th,td{text-align:left;padding:14px;border-bottom:1px solid #edf0f5}th{background:#fafbfc;color:#687386}button,a{background:#2855d9;color:white;border:0;border-radius:8px;padding:9px 13px;text-decoration:none;cursor:pointer}select{padding:7px;border:1px solid #ddd;border-radius:7px}.status{font-size:12px;color:#17684d}@media(max-width:600px){.cards{display:block}.card{margin:10px 0}.integration{float:none}}
 </style></head><body><header>Lead Desk <span class="muted">/ Inbound lead management</span></header><main>
 <div class="integration"><span id="gstatus">Google status loading</span> <a href="/oauth/google/start">Connect Google</a></div><h1>Pipeline overview</h1><p class="muted">Review inbound leads and update their deal stage.</p>
 <div class="cards"><div class="card">Total leads<div class="num" id="total">—</div></div><div class="card">Open pipeline<div class="num" id="open">—</div></div><div class="card">Won<div class="num" id="won">—</div></div></div>
@@ -217,8 +217,8 @@ main{max-width:1100px;margin:28px auto;padding:0 18px}.cards{display:flex;gap:14
 <p class="muted">Partner ingestion: POST /api/leads · HMAC-SHA256 signature required.</p></main><script>
 const stages=['New','Qualified','Proposal','Won','Lost'];
 function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-async function load(){try{const a=await fetch('/api/leads'),b=await fetch('/api/integration/google');if(!a.ok||!b.ok)throw 0;const leads=await a.json(),g=await b.json();document.getElementById('total').textContent=leads.length;document.getElementById('open').textContent=leads.filter(x=>!['Won','Lost'].includes(x.stage)).length;document.getElementById('won').textContent=leads.filter(x=>x.stage==='Won').length;document.getElementById('gstatus').textContent=g.connected?'Google connected: '+(g.email||'account'):'Google not connected';document.getElementById('rows').innerHTML=leads.map(x=>'<tr><td><b>'+esc(x.name)+'</b><br><small>'+esc(x.email)+' · '+esc(x.external_id)+'</small></td><td>'+esc(x.company)+'</td><td>'+esc(x.source)+'</td><td><select aria-label="Deal stage for '+esc(x.name)+'" onchange="stage(\\''+encodeURIComponent(x.external_id)+'\\',this.value)">'+stages.map(s=>'<option '+(x.stage===s?'selected':'')+'>'+s+'</option>').join('')+'</select></td><td><span class="status">'+esc(x.sheets_sync_status)+'</span></td></tr>').join('')}catch(e){document.getElementById('rows').innerHTML='<tr><td colspan="5">Unable to load leads. Verify admin credentials.</td></tr>'}}
-async function stage(id,value){await fetch('/api/leads/'+id+'/stage',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({stage:value})});load()}load();
+async function load(){try{const a=await fetch('/api/leads'),b=await fetch('/api/integration/google');if(!a.ok||!b.ok)throw 0;const leads=await a.json(),g=await b.json();document.getElementById('total').textContent=leads.length;document.getElementById('open').textContent=leads.filter(x=>!['Won','Lost'].includes(x.stage)).length;document.getElementById('won').textContent=leads.filter(x=>x.stage==='Won').length;document.getElementById('gstatus').textContent=g.connected?'Google connected: '+(g.email||'account'):'Google not connected';document.getElementById('rows').innerHTML=leads.map(x=>'<tr><td><b>'+esc(x.name)+'</b><br><small>'+esc(x.email)+' · '+esc(x.external_id)+'</small></td><td>'+esc(x.company)+'</td><td>'+esc(x.source)+'</td><td><select data-id="'+encodeURIComponent(x.external_id)+'" aria-label="Deal stage for '+esc(x.name)+'" onchange="stage(this)">'+stages.map(s=>'<option '+(x.stage===s?'selected':'')+'>'+s+'</option>').join('')+'</select></td><td><span class="status">'+esc(x.sheets_sync_status)+'</span></td></tr>').join('')}catch(e){document.getElementById('rows').innerHTML='<tr><td colspan="5">Unable to load leads. Verify admin credentials.</td></tr>'}}
+async function stage(el){const id=el.dataset.id,value=el.value;await fetch('/api/leads/'+id+'/stage',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({stage:value})});load()}load();
 </script></body></html>"""
 
 
@@ -286,8 +286,7 @@ def create_app(db_path: str | None = None, signing_secret: str | None = None,
         if action != "duplicate":
             sync = sync_lead(lead)
             with closing(db(app.state.db_path)) as c:
-                row = c.execute("SELECT * FROM leads WHERE pk=?", (lead["pk"],)).fetchone()
-                lead = dict(row)
+                lead = dict(c.execute("SELECT * FROM leads WHERE pk=?", (lead["pk"],)).fetchone())
         return {"action": action, "lead": lead, "sheets_sync": sync}
 
     @app.get("/api/leads", dependencies=[Depends(require_admin)])
