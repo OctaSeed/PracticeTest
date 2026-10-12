@@ -1,0 +1,11 @@
+services:
+  lead-management:
+    build: .
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+      - ./credentials.json:/app/credentials.json:ro
+    restart: unless-stopped
